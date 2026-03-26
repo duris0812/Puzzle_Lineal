@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Solver - DFS</title>
+    <title>Puzzle Solver</title>
     <style>
         * {
             margin: 0;
@@ -12,316 +12,190 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
             padding: 20px;
         }
         
         .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             max-width: 600px;
-            width: 100%;
-            padding: 40px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
-            font-size: 28px;
-        }
-        
-        .subtitle {
-            color: #666;
             text-align: center;
             margin-bottom: 30px;
-            font-size: 14px;
+            color: #333;
+            font-size: 24px;
         }
         
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
         
         label {
             display: block;
+            margin-bottom: 5px;
             color: #333;
-            font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            font-weight: bold;
         }
         
-        input[type="text"] {
+        input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 14px;
-            transition: border-color 0.3s;
-            font-family: 'Courier New', monospace;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .input-hint {
-            color: #999;
-            font-size: 12px;
-            margin-top: 5px;
+            font-family: monospace;
         }
         
         button {
             width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px;
+            background: #7c3aed;
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 16px;
+            margin-top: 10px;
         }
         
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        button:active {
-            transform: translateY(0);
+            background: #6d28d9;
         }
         
         button:disabled {
-            opacity: 0.6;
+            background: #ccc;
             cursor: not-allowed;
         }
         
-        .result-section {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
-        }
-        
-        .result-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-        
-        .result-box {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            display: none;
-        }
-        
-        .result-box.success {
-            border-left-color: #10b981;
-            display: block;
-        }
-        
-        .result-box.error {
-            border-left-color: #ef4444;
-            background: #fef2f2;
-            display: block;
-        }
-        
-        .result-box.info {
-            border-left-color: #3b82f6;
-            background: #f0f9ff;
-            display: block;
-        }
-        
-        .result-box p {
-            color: #555;
-            margin: 8px 0;
-            line-height: 1.6;
-        }
-        
-        .result-box strong {
-            color: #333;
+        .resultado {
+            margin-top: 30px;
         }
         
         .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #7c3aed;
         }
         
-        .stat-item {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            border: 1px solid #e0e0e0;
+        .stats p {
+            margin: 5px 0;
+            color: #555;
         }
         
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #667eea;
+        .camino {
+            margin-top: 20px;
         }
         
-        .stat-label {
-            color: #666;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-        
-        .camino-container {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-top: 15px;
+        .camino h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
         }
         
         .paso {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
             padding: 10px;
-            margin-bottom: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-        
-        .paso-numero {
-            color: #667eea;
-            font-weight: 700;
-            margin-right: 10px;
-        }
-        
-        .paso-estado {
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
             color: #333;
         }
         
-        .paso.objetivo {
-            background: #f0fdf4;
-            border-color: #10b981;
+        .paso.inicial {
+            background: #fff3cd;
+            border-color: #ffc107;
         }
         
-        .paso.inicial {
-            background: #fef3c7;
-            border-color: #f59e0b;
+        .paso.final {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
         }
         
         .loading {
-            display: none;
             text-align: center;
-            margin: 20px 0;
+            color: #666;
+            margin-top: 20px;
         }
         
         .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f0f0f0;
-            border-top: 3px solid #667eea;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #7c3aed;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin-right: 10px;
         }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .loading.active {
-            display: block;
-        }
-        
-        .error-message {
-            color: #ef4444;
-        }
-        
-        .success-message {
-            color: #10b981;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧩 Puzzle Solver</h1>
-        <p class="subtitle">Resuelve puzzles lineales usando DFS (Búsqueda en Profundidad)</p>
+        <h1>Puzzle Solver - DFS</h1>
         
         <form id="puzzleForm">
             <div class="form-group">
-                <label for="estadoInicial">Estado Inicial</label>
-                <input 
-                    type="text" 
-                    id="estadoInicial" 
-                    name="estado_inicial" 
-                    placeholder="Ej: [4, 2, 3, 1]"
-                    required
-                >
-                <div class="input-hint">Ingresa una lista de 4 números enteros</div>
+                <label>Estado Inicial:</label>
+                <input type="text" id="estadoInicial" placeholder="[4, 2, 3, 1]" required>
             </div>
             
             <div class="form-group">
-                <label for="solucion">Nodo Solución (Objetivo)</label>
-                <input 
-                    type="text" 
-                    id="solucion" 
-                    name="solucion" 
-                    placeholder="Ej: [1, 2, 3, 4]"
-                    required
-                >
-                <div class="input-hint">Ingresa el estado objetivo como lista de 4 números enteros</div>
+                <label>Objetivo:</label>
+                <input type="text" id="solucion" placeholder="[1, 2, 3, 4]" required>
             </div>
             
-            <button type="submit" id="submitBtn">Resolver Puzzle</button>
+            <button type="submit" id="submitBtn">Resolver</button>
         </form>
         
-        <div class="loading" id="loading">
+        <div id="loading" class="loading" style="display: none;">
             <div class="spinner"></div>
-            <p>Resolviendo puzzle...</p>
+            Resolviendo...
         </div>
         
-        <div class="result-section">
-            <div id="resultBox" class="result-box"></div>
-            
-            <div id="statsContainer" style="display: none;">
-                <h2>Estadísticas</h2>
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="statPasos">0</div>
-                        <div class="stat-label">Pasos a Solución</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="statNodos">0</div>
-                        <div class="stat-label">Nodos Visitados</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="caminoContainer" style="display: none;">
-                <h2>Camino a la Solución</h2>
-                <div class="camino-container" id="camino"></div>
+        <div id="resultado" class="resultado" style="display: none;">
+            <div id="stats" class="stats"></div>
+            <div id="camino" class="camino">
+                <h3>Pasos:</h3>
+                <div id="pasos"></div>
             </div>
         </div>
+        
+        <div id="error" class="error" style="display: none;"></div>
     </div>
     
     <script>
         const form = document.getElementById('puzzleForm');
         const submitBtn = document.getElementById('submitBtn');
         const loading = document.getElementById('loading');
-        const resultBox = document.getElementById('resultBox');
-        const statsContainer = document.getElementById('statsContainer');
-        const caminoContainer = document.getElementById('caminoContainer');
-        const statPasos = document.getElementById('statPasos');
-        const statNodos = document.getElementById('statNodos');
-        const camino = document.getElementById('camino');
+        const resultado = document.getElementById('resultado');
+        const errorDiv = document.getElementById('error');
+        const statsDiv = document.getElementById('stats');
+        const pasosDiv = document.getElementById('pasos');
         
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -329,15 +203,9 @@
             const estadoInicial = document.getElementById('estadoInicial').value.trim();
             const solucion = document.getElementById('solucion').value.trim();
             
-            // Limpiar resultados anteriores
-            resultBox.innerHTML = '';
-            resultBox.className = 'result-box';
-            statsContainer.style.display = 'none';
-            caminoContainer.style.display = 'none';
-            camino.innerHTML = '';
-            
-            // Mostrar loading
-            loading.classList.add('active');
+            loading.style.display = 'block';
+            resultado.style.display = 'none';
+            errorDiv.style.display = 'none';
             submitBtn.disabled = true;
             
             try {
@@ -354,66 +222,43 @@
                 });
                 
                 const data = await response.json();
-                loading.classList.remove('active');
+                loading.style.display = 'none';
                 
                 if (data.success) {
-                    // Mostrar resultado exitoso
-                    resultBox.className = 'result-box success';
-                    resultBox.innerHTML = `
-                        <p><strong>✓ ¡Solución encontrada!</strong></p>
-                        <p>El puzzle se resolvió exitosamente.</p>
+                    statsDiv.innerHTML = `
+                        <p><strong>Pasos:</strong> ${data.pasos}</p>
+                        <p><strong>Nodos visitados:</strong> ${data.nodos_visitados}</p>
                     `;
                     
-                    // Mostrar estadísticas
-                    statPasos.textContent = data.pasos;
-                    statNodos.textContent = data.nodos_visitados;
-                    statsContainer.style.display = 'block';
+                    pasosDiv.innerHTML = '';
+                    data.camino.forEach((paso, index) => {
+                        const pasoEl = document.createElement('div');
+                        pasoEl.className = 'paso';
+                        
+                        if (index === 0) {
+                            pasoEl.classList.add('inicial');
+                        }
+                        if (index === data.camino.length - 1) {
+                            pasoEl.classList.add('final');
+                        }
+                        
+                        pasoEl.textContent = `Paso ${index}: ${JSON.stringify(paso)}`;
+                        pasosDiv.appendChild(pasoEl);
+                    });
                     
-                    // Mostrar camino
-                    mostrarCamino(data.camino);
-                    caminoContainer.style.display = 'block';
+                    resultado.style.display = 'block';
                 } else {
-                    // Mostrar error
-                    resultBox.className = 'result-box error';
-                    resultBox.innerHTML = `
-                        <p><strong>✗ Error</strong></p>
-                        <p>${data.error}</p>
-                        ${data.nodos_visitados ? `<p>Nodos visitados: ${data.nodos_visitados}</p>` : ''}
-                    `;
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = `Error: ${data.error}`;
                 }
             } catch (error) {
-                loading.classList.remove('active');
-                resultBox.className = 'result-box error';
-                resultBox.innerHTML = `
-                    <p><strong>✗ Error de conexión</strong></p>
-                    <p>${error.message}</p>
-                `;
+                loading.style.display = 'none';
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = `Error de conexión: ${error.message}`;
             } finally {
                 submitBtn.disabled = false;
             }
         });
-        
-        function mostrarCamino(caminoArray) {
-            camino.innerHTML = '';
-            
-            caminoArray.forEach((estado, index) => {
-                const div = document.createElement('div');
-                div.className = 'paso';
-                
-                if (index === 0) {
-                    div.classList.add('inicial');
-                } else if (index === caminoArray.length - 1) {
-                    div.classList.add('objetivo');
-                }
-                
-                div.innerHTML = `
-                    <span class="paso-numero">Paso ${index}:</span>
-                    <span class="paso-estado">${JSON.stringify(estado)}</span>
-                `;
-                
-                camino.appendChild(div);
-            });
-        }
         
         function getCSRFToken() {
             const name = 'csrftoken';
@@ -430,10 +275,6 @@
             }
             return cookieValue || '';
         }
-        
-        // Ejemplo de valores por defecto
-        document.getElementById('estadoInicial').placeholder = 'Ej: [4, 2, 3, 1]';
-        document.getElementById('solucion').placeholder = 'Ej: [1, 2, 3, 4]';
     </script>
 </body>
 </html>
