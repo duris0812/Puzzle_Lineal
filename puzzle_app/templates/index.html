@@ -3,278 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Puzzle Solver</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-            font-size: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-        
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: monospace;
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #7c3aed;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-        
-        button:hover {
-            background: #6d28d9;
-        }
-        
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .resultado {
-            margin-top: 30px;
-        }
-        
-        .stats {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            border-left: 4px solid #7c3aed;
-        }
-        
-        .stats p {
-            margin: 5px 0;
-            color: #555;
-        }
-        
-        .camino {
-            margin-top: 20px;
-        }
-        
-        .camino h3 {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .paso {
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #333;
-        }
-        
-        .paso.inicial {
-            background: #fff3cd;
-            border-color: #ffc107;
-        }
-        
-        .paso.final {
-            background: #d4edda;
-            border-color: #28a745;
-        }
-        
-        .error {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 20px;
-        }
-        
-        .loading {
-            text-align: center;
-            color: #666;
-            margin-top: 20px;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #7c3aed;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <title>Puzzle Solver - DFS</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <div class="container">
-        <h1>Puzzle Solver - DFS</h1>
-        
-        <form id="puzzleForm">
-            <div class="form-group">
-                <label>Estado Inicial:</label>
-                <input type="text" id="estadoInicial" placeholder="[4, 2, 3, 1]" required>
-            </div>
-            
-            <div class="form-group">
-                <label>Objetivo:</label>
-                <input type="text" id="solucion" placeholder="[1, 2, 3, 4]" required>
-            </div>
-            
-            <button type="submit" id="submitBtn">Resolver</button>
-        </form>
-        
-        <div id="loading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            Resolviendo...
-        </div>
-        
-        <div id="resultado" class="resultado" style="display: none;">
-            <div id="stats" class="stats"></div>
-            <div id="camino" class="camino">
-                <h3>Pasos:</h3>
-                <div id="pasos"></div>
-            </div>
-        </div>
-        
-        <div id="error" class="error" style="display: none;"></div>
+        <header>
+            <h1>Puzzle Solver</h1>
+            <p class="subtitle">Resuelve puzzles usando DFS (Depth-First Search)</p>
+        </header>
+
+        <main>
+            {% if error %}
+                <div class="alert alert-error">
+                    ⚠️ {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="post" class="form-puzzle">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="estado_inicial">Estado Inicial:</label>
+                    <input 
+                        type="text" 
+                        id="estado_inicial" 
+                        name="estado_inicial" 
+                        placeholder="4,2,3,1" 
+                        required
+                        value="{{ request.POST.estado_inicial }}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="solucion">Estado Objetivo:</label>
+                    <input 
+                        type="text" 
+                        id="solucion" 
+                        name="solucion" 
+                        placeholder="1,2,3,4" 
+                        required
+                        value="{{ request.POST.solucion }}"
+                    >
+                </div>
+
+                <button type="submit" class="btn-submit">► Resolver Puzzle</button>
+            </form>
+
+            {% if resultado %}
+                <div class="resultado">
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Pasos:</span>
+                            <span class="stat-value">{{ resultado.pasos }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Nodos Visitados:</span>
+                            <span class="stat-value">{{ resultado.nodos_visitados }}</span>
+                        </div>
+                    </div>
+
+                    <div class="camino">
+                        <h3>Solución encontrada</h3>
+                        <div class="pasos-lista">
+                            {% for paso in resultado.camino %}
+                                <div class="paso">
+                                    <span class="paso-numero">Paso {{ forloop.counter0 }}:</span>
+                                    <span class="paso-contenido">{{ paso }}</span>
+                                </div>
+                                {% if not forloop.last %}
+                                    <div class="paso-arrow">↓</div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </main>
     </div>
-    
-    <script>
-        const form = document.getElementById('puzzleForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const loading = document.getElementById('loading');
-        const resultado = document.getElementById('resultado');
-        const errorDiv = document.getElementById('error');
-        const statsDiv = document.getElementById('stats');
-        const pasosDiv = document.getElementById('pasos');
-        
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const estadoInicial = document.getElementById('estadoInicial').value.trim();
-            const solucion = document.getElementById('solucion').value.trim();
-            
-            loading.style.display = 'block';
-            resultado.style.display = 'none';
-            errorDiv.style.display = 'none';
-            submitBtn.disabled = true;
-            
-            try {
-                const response = await fetch('/resolver/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
-                    },
-                    body: JSON.stringify({
-                        estado_inicial: estadoInicial,
-                        solucion: solucion
-                    })
-                });
-                
-                const data = await response.json();
-                loading.style.display = 'none';
-                
-                if (data.success) {
-                    statsDiv.innerHTML = `
-                        <p><strong>Pasos:</strong> ${data.pasos}</p>
-                        <p><strong>Nodos visitados:</strong> ${data.nodos_visitados}</p>
-                    `;
-                    
-                    pasosDiv.innerHTML = '';
-                    data.camino.forEach((paso, index) => {
-                        const pasoEl = document.createElement('div');
-                        pasoEl.className = 'paso';
-                        
-                        if (index === 0) {
-                            pasoEl.classList.add('inicial');
-                        }
-                        if (index === data.camino.length - 1) {
-                            pasoEl.classList.add('final');
-                        }
-                        
-                        pasoEl.textContent = `Paso ${index}: ${JSON.stringify(paso)}`;
-                        pasosDiv.appendChild(pasoEl);
-                    });
-                    
-                    resultado.style.display = 'block';
-                } else {
-                    errorDiv.style.display = 'block';
-                    errorDiv.textContent = `Error: ${data.error}`;
-                }
-            } catch (error) {
-                loading.style.display = 'none';
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = `Error de conexión: ${error.message}`;
-            } finally {
-                submitBtn.disabled = false;
-            }
-        });
-        
-        function getCSRFToken() {
-            const name = 'csrftoken';
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue || '';
-        }
-    </script>
 </body>
 </html>

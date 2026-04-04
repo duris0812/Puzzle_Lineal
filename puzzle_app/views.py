@@ -1,73 +1,55 @@
 from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from puzzle_dfs import buscar_solucuion_DFS, obtener_camino
-import json
 
 
 def index(request):
     """Página principal con el formulario"""
-    return render(request, 'index.html')
-
-
-@csrf_exempt
-def resolver_puzzle(request):
-    """Vista para resolver el puzzle"""
+    resultado = None
+    error = None
+    
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            # Obtener datos del formulario
+            estado_inicial_str = request.POST.get('estado_inicial', '').strip()
+            solucion_str = request.POST.get('solucion', '').strip()
             
-            # Parse del estado inicial
-            estado_inicial_str = data.get('estado_inicial', '')
-            solucion_str = data.get('solucion', '')
+            # Limpiar entrada
+            estado_inicial_str = estado_inicial_str.strip('[]').replace(' ', '')
+            solucion_str = solucion_str.strip('[]').replace(' ', '')
             
-            # Convertir strings a listas
-            estado_inicial = eval(estado_inicial_str)
-            solucion = eval(solucion_str)
+            # Convertir a listas
+            estado_inicial = [int(x) for x in estado_inicial_str.split(',')]
+            solucion = [int(x) for x in solucion_str.split(',')]
             
             # Validar que sean listas de 4 elementos
-            if not isinstance(estado_inicial, list) or len(estado_inicial) != 4:
-                return JsonResponse({
-                    'error': 'El estado inicial debe ser una lista de 4 elementos',
-                    'success': False
-                })
-            
-            if not isinstance(solucion, list) or len(solucion) != 4:
-                return JsonResponse({
-                    'error': 'El nodo solución debe ser una lista de 4 elementos',
-                    'success': False
-                })
-            
-            # Resolver el puzzle
-            nodo_solucion, nodos_visitados = buscar_solucuion_DFS(estado_inicial, solucion)
-            
-            if nodo_solucion is None:
-                return JsonResponse({
-                    'error': 'No se encontró solución para el puzzle',
-                    'success': False,
-                    'nodos_visitados': len(nodos_visitados)
-                })
-            
-            # Obtener el camino
-            camino = obtener_camino(nodo_solucion)
-            
-            return JsonResponse({
-                'success': True,
-                'camino': camino,
-                'pasos': len(camino) - 1,
-                'nodos_visitados': len(nodos_visitados),
-                'encontrado': True
-            })
+            if len(estado_inicial) != 4:
+                error = 'El estado inicial debe tener exactamente 4 números'
+            elif len(solucion) != 4:
+                error = 'El estado objetivo debe tener exactamente 4 números'
+            else:
+                # Resolver el puzzle
+                nodo_solucion, nodos_visitados = buscar_solucuion_DFS(estado_inicial, solucion)
+                
+                if nodo_solucion is None:
+                    error = f'No se encontró solución. Se visitaron {len(nodos_visitados)} nodos.'
+                else:
+                    # Obtener el camino
+                    camino = obtener_camino(nodo_solucion)
+                    resultado = {
+                        'camino': camino,
+                        'pasos': len(camino) - 1,
+                        'nodos_visitados': len(nodos_visitados),
+                        'encontrado': True
+                    }
         
-        except ValueError as e:
-            return JsonResponse({
-                'error': f'Error al parsear los datos: {str(e)}',
-                'success': False
-            })
+        except ValueError:
+            error = 'Ingresa solo números separados por comas. Ej: 4,2,3,1'
         except Exception as e:
-            return JsonResponse({
-                'error': f'Error en la búsqueda: {str(e)}',
-                'success': False
-            })
+            error = f'Error: {str(e)}'
     
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+    context = {
+        'resultado': resultado,
+        'error': error
+    }
+    
+    return render(request, 'index.html', context)

@@ -1,4 +1,7 @@
 # Puzzle lineal con búsqueda en profundidad
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from arbol import Nodo
 
 def buscar_solucuion_DFS(estado_inicial, solucion):
