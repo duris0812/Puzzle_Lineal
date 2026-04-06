@@ -69,6 +69,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'puzzle_app', 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+WHITENOISE_USE_FINDERS = True
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
